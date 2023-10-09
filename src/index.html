@@ -54,29 +54,42 @@
     
     uniform mat4 P;
     uniform mat4 MV;
+    uniform mat4 V;
     uniform mat3 N;
     
+    out vec3 v_position;
     out vec3 v_normal;
     out highp vec3 vLighting;
     
     void main() {
         // Multiply the position by the matrix.
-        gl_Position = P * MV * vec4(vPosition, 1);
+        gl_Position = P * V * MV * vec4(vPosition, 1);
+
+        v_position = vPosition.xyz;
     
         // Pass the normal to the fragment shader
         v_normal = N * vNormal + (MV * vec4(vPosition, 1)).xyz;
         v_normal = normalize(v_normal);
         
-        highp vec3 ambientLight = vec3(0.5, 0.5, 0.5);
+        highp vec3 ambientLight = vec3(0.2, 0.2, 0.2);
         
         highp vec3 directionalLightColor = vec3(1, 1, 1);
         
-        highp vec3 directionalVector = normalize(vec3(1, 1, 2));
+        highp vec3 directionalVector = normalize(vec3(1, 1, 1));
 
         highp float directional = max(dot(v_normal, directionalVector), 0.0);
 
         vLighting = ambientLight + (directionalLightColor * directional);
+
+        directionalVector = normalize(vec3(-1, 1, -1));
+
+        directional = max(dot(v_normal, directionalVector), 0.0);
         
+        vLighting +=(directionalLightColor * directional);
+
+        //v_normal = N * (MV * vec4(vNormal, 1)).xyz;
+
+
     }
     </script>
 
@@ -89,10 +102,10 @@
     precision mediump float;
 
     // Passed in from the vertex shader.
+    in vec3 v_position;
     in vec3 v_normal;
     in highp vec3 vLighting;
 
-    uniform vec3 reverseLightDirection;
     uniform vec4 color;
 
     out vec4 fColor;
@@ -105,26 +118,30 @@
 
     // float light = dot(normal, reverseLightDirection);
 
-    // fColor = vec4(v_normal, 1);
+    //fColor = vec4(v_normal, 1);
     fColor = color;
+    //fColor = vec4(v_position.x, v_position.y, v_position.z, 1);
 
     // Lets multiply just the color portion (not the alpha)
     // by the light
     
-    fColor.rgb *= vLighting*1.2;
+    fColor.rgb *= vLighting;
 
     }
-    </script>
+    </script>  
     
     <!��------------------->
     <!��     JS Files    ��>
     <!��------------------->
 
-    <script src="gl-matrix.js" defer></script>
-    <script src="Vbo.js" defer></script>
-    <script src="initShaders.js" defer></script>
-    <script src="MVnew.js" defer></script>
-    <script src="object.js" defer></script>
+    <script src="./libs/initShaders.js" defer></script>
+    <script src="./libs/MVnew.js" defer></script>
+    <script src="./libs/Vbo.js" defer></script>
+    <script src="./objects/object.js" defer></script>
+    <script src="./objects/cube.js" defer></script>
+    <script src="./objects/sphere.js" defer></script>
+    <script src="./objects/camera.js" defer></script>
+    <script src="./objects/plane.js" defer></script>
     <script src="main.js" defer></script>
 </head>
 <body>
